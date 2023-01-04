@@ -9,6 +9,7 @@ import requests, json
 import argparse
 import is_malicious
 
+
 API_KEY = "8efd6a55d157ee2cdaee567709846929faaa8e2620f67f7abf6e34c1db260649"
 OTX_SERVER = 'https://otx.alienvault.com/'
 otx = OTXv2(API_KEY, server=OTX_SERVER)
@@ -16,12 +17,12 @@ otx = OTXv2(API_KEY, server=OTX_SERVER)
 spark = SparkSession.builder.master("local[1]").appName('SparkByExamples.com').getOrCreate()#app name is just session name
 
 #odavde uzimam jedan otx objekat, tj virus
-data_from_otx = otx.getall_iter(max_page=1)
+'''data_from_otx = otx.getall_iter(max_page=1)
 #upisujem ga u json fajl
 for i in data_from_otx:
     json_object = json.dumps(i,default=str)
     with open("data_from_otx.json","w")as outfile:
-        outfile.write(json_object)
+        outfile.write(json_object)'''
 
 #df2 = spark.read.json("data_from_otx.json")
 #ispise se schema koja je napravljena u sparku od json obj koji sam ucitala
@@ -30,6 +31,9 @@ for i in data_from_otx:
 #da mi iz liste indikatora ispise polje indikator prvog iz liste
 #df2.select(df2["indicators"].getItem("indicator")[0]).show()
 
+dataframe = spark.read.csv("wireshark.csv", header=True)
+dataframe.printSchema()
+dataframe.select(dataframe["SOurce"]).show()
 
 parser = argparse.ArgumentParser(description='OTX CLI Example')
 parser.add_argument('-ip', help='IP eg; 4.4.4.4', required=False)
