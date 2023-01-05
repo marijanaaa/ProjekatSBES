@@ -32,8 +32,8 @@ for i in data_from_otx:
 #df2.select(df2["indicators"].getItem("indicator")[0]).show()
 
 dataframe = spark.read.csv("wireshark.csv", header=True)
-dataframe.printSchema()
-dataframe.select(dataframe["SOurce"]).show()
+#dataframe.printSchema()
+#dataframe.select(dataframe["Source"]).show()
 
 parser = argparse.ArgumentParser(description='OTX CLI Example')
 parser.add_argument('-ip', help='IP eg; 4.4.4.4', required=False)
@@ -46,10 +46,23 @@ parser.add_argument(
 parser.add_argument(
     '-file', help='Path to a file, eg; malware.exe', required=False)
 
-args = vars(parser.parse_args("-hash 7b42b35832855ab4ff37ae9b8fa9e571".split()))
+#private ip adrese
+'''Class A: 10.0.0.0 to 10.255.255.255
+   Class B: 172.16.0.0 to 172.31.255.255
+   Class C: 192.168.0.0 to 192.168.255.255'''
+def func(ip):
+    print("------------------")
+    print(ip)
+    splited_ip = ip.split('.')
+    if splited_ip[0] == '10' and int(splited_ip[1]) <= 255 or splited_ip[0] == '172' and int(splited_ip[1]) <= 31 or splited_ip[0] == '192' and int(splited_ip[1]) <= 168:
+        print("Private ip")
+        print("------------------")
+    else:
+        args = vars(parser.parse_args(("-ip "+ip).split()))
+        is_malicious.is_malicious(otx, args)
 
-is_malicious.is_malicious(otx, args)
-
+for iterator in dataframe.collect():
+    func(iterator["Source"])
 
 if __name__ == "__main__":
     print(f"HEllo, I'm Python VErsion : {sys.version}")
