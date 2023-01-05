@@ -17,12 +17,12 @@ otx = OTXv2(API_KEY, server=OTX_SERVER)
 spark = SparkSession.builder.master("local[1]").appName('SparkByExamples.com').getOrCreate()#app name is just session name
 
 #odavde uzimam jedan otx objekat, tj virus
-'''data_from_otx = otx.getall_iter(max_page=1)
+data_from_otx = otx.getall_iter(max_page=5)
 #upisujem ga u json fajl
 for i in data_from_otx:
     json_object = json.dumps(i,default=str)
-    with open("data_from_otx.json","w")as outfile:
-        outfile.write(json_object)'''
+    with open("CTI_Data.json","w")as outfile:
+        outfile.write(json_object)
 
 #df2 = spark.read.json("data_from_otx.json")
 #ispise se schema koja je napravljena u sparku od json obj koji sam ucitala
@@ -31,7 +31,7 @@ for i in data_from_otx:
 #da mi iz liste indikatora ispise polje indikator prvog iz liste
 #df2.select(df2["indicators"].getItem("indicator")[0]).show()
 
-dataframe = spark.read.csv("wireshark.csv", header=True)
+dataframe = spark.read.json("CTI_Data.json")
 #dataframe.printSchema()
 #dataframe.select(dataframe["Source"]).show()
 
@@ -50,11 +50,12 @@ parser.add_argument(
 '''Class A: 10.0.0.0 to 10.255.255.255
    Class B: 172.16.0.0 to 172.31.255.255
    Class C: 192.168.0.0 to 192.168.255.255'''
-def func(ip):
+'''def func(ip):
     print("------------------")
     print(ip)
     splited_ip = ip.split('.')
-    if splited_ip[0] == '10' and int(splited_ip[1]) <= 255 or splited_ip[0] == '172' and int(splited_ip[1]) <= 31 or splited_ip[0] == '192' and int(splited_ip[1]) <= 168:
+    if splited_ip[0] == '10' and int(splited_ip[1]) <= 255 or splited_ip[0] == '172' and int(splited_ip[1]) <= 31 or splited_ip[0] == '192' \
+        and int(splited_ip[1]) <= 168 or splited_ip[0] == '0':
         print("Private ip")
         print("------------------")
     else:
@@ -62,7 +63,7 @@ def func(ip):
         is_malicious.is_malicious(otx, args)
 
 for iterator in dataframe.collect():
-    func(iterator["Source"])
+    func(iterator["Source"])'''
 
 if __name__ == "__main__":
     print(f"HEllo, I'm Python VErsion : {sys.version}")
