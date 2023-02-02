@@ -49,13 +49,9 @@ if response.status_code == 200:
         fig, ax = plt.subplots()
         ax.barh(group_names, group_data)
         plt.title(parameter)
-<<<<<<< HEAD
-        plt.savefig(parameter+'.jpg')
-=======
-        plt.savefig(parameter+'.jpg')
->>>>>>> 0ca04a2c34fa0d96c5b4143f3d665096c9279949
+        plt.savefig(parameter+'.png')
 
-
+        
     def display_data(parameter):
         rows = spark.sql('select '+parameter+' from pulse').collect()
         dict = {}
