@@ -55,11 +55,26 @@ if response.status_code == 200:
     def pandas(dict, parameter):
         group_data = list(dict.values())
         group_names = list(dict.keys())
+       
         plt.pie(group_data, labels=group_names)
         plt.title(parameter)
         plt.savefig(parameter+'.png')
-        
-        
+ 
+    def bar(dict, parameter):
+        group_data = list(dict.values())
+        group_names = list(dict.keys())
+        group_mean = np.mean(group_data) 
+
+        fig, ax = plt.subplots()
+        ax.barh(group_names, group_data)
+        plt.title(parameter)
+        group_data = list(dict.values())
+        group_names = list(dict.keys())
+       
+       
+        plt.title(parameter)
+       
+        plt.savefig(parameter+'.png', facecolor='y', bbox_inches="tight",pad_inches=0.3, transparent=True)
     def display_data(parameter):
         rows = spark.sql('select '+parameter+' from pulse').collect()
         dict = {}
@@ -89,7 +104,7 @@ if response.status_code == 200:
             else:
                 dict[value] = 1
         print(dict)
-        pandas(dict, "adversary")
+        bar(dict, "adversary")
 
 
     def display_data_tags():
@@ -148,8 +163,9 @@ if response.status_code == 200:
         print(dict)
                     
     '''
-
-    
+   
+    display_data_tags()
+   
     #TARGETED COUNTRIES
     display_data("targeted_countries")
     
@@ -158,12 +174,13 @@ if response.status_code == 200:
 
     #INDUSTRIES
     display_data("industries")
-
-    #ADVERSARY
+    
+   
     display_data_adversary()
+   
+   
 
-    #TAGS
-    display_data_tags()
+   
     
     #NUMBER OF MALWARE FAMILIES IN TARGETED COUNTRIES
     #malware_families_in_targeted_country()
