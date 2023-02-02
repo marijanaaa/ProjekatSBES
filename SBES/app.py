@@ -4,6 +4,7 @@ findspark.init()
 from pyspark.sql import SparkSession
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 # Create a SparkSession
 spark = SparkSession.builder.appName("AlienVault").getOrCreate()
@@ -51,6 +52,13 @@ if response.status_code == 200:
         plt.title(parameter)
         plt.savefig(parameter+'.png')
 
+    def pandas(dict, parameter):
+        group_data = list(dict.values())
+        group_names = list(dict.keys())
+        plt.pie(group_data, labels=group_names)
+        plt.title(parameter)
+        plt.savefig(parameter+'.png')
+        
         
     def display_data(parameter):
         rows = spark.sql('select '+parameter+' from pulse').collect()
@@ -81,7 +89,7 @@ if response.status_code == 200:
             else:
                 dict[value] = 1
         print(dict)
-        plot(dict, "adversary")
+        pandas(dict, "adversary")
 
 
     def display_data_tags():
@@ -104,7 +112,7 @@ if response.status_code == 200:
             dict[tuple[0]] = tuple[1]
 
         print(dict)
-        plot(dict,"tags")
+        pandas(dict,"tags")
 
     
     '''def malware_families_in_targeted_country():
@@ -141,6 +149,7 @@ if response.status_code == 200:
                     
     '''
 
+    
     #TARGETED COUNTRIES
     display_data("targeted_countries")
     
