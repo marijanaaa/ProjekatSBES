@@ -3,6 +3,7 @@ import findspark
 findspark.init()
 from pyspark.sql import SparkSession
 import numpy as np
+
 import matplotlib.pyplot as plt
 import pandas as pd
 
@@ -60,7 +61,7 @@ if response.status_code == 200:
         plt.title(parameter)
         plt.savefig(parameter+'.png')
  
-    def bar(dict, parameter):
+    def barr(dict, parameter):
         group_data = list(dict.values())
         group_names = list(dict.keys())
         group_mean = np.mean(group_data) 
@@ -104,7 +105,7 @@ if response.status_code == 200:
             else:
                 dict[value] = 1
         print(dict)
-        bar(dict, "adversary")
+        barr(dict, "adversary")
 
 
     def display_data_tags():
@@ -129,7 +130,67 @@ if response.status_code == 200:
         print(dict)
         pandas(dict,"tags")
 
-    
+    def threatNumOverTime():
+        indicatorss = spark.sql("select indicators from pulse").collect()
+        my_dictionary = dict()
+        my_dictionary1 = dict()
+        created = []
+        created1 = []
+        for indicators in indicatorss:
+            for indicator in indicators:
+                for ind in indicator:
+                    splitValue = ind[1].split("T")[0]
+                    if '2023' in splitValue:
+                       newValue = splitValue.split('2023-')[1] 
+                       val1 = newValue.split('01-')[1] 
+                       print(val1)
+                       if val1 <= '20':
+                          created.append(newValue)
+
+                    else:
+                        newWalue = splitValue.split('2022-')[1]
+                        created1.append(newValue)
+
+        my_dictionary = dict.fromkeys(created, 0)
+        for i in created:
+             if i in my_dictionary.keys():
+                my_dictionary[i] += 1
+             else:
+                 my_dictionary[i] = 0
+        for i in created1:
+             if i in my_dictionary1.keys():
+                my_dictionary1[i] += 1
+             else:
+                 my_dictionary1[i] = 0
+        
+        x = my_dictionary.keys()
+        y = []
+        for i in x:
+            y.append(my_dictionary[i])
+
+        x1 = my_dictionary1.keys()
+        y1= []
+        for i in x1:
+            y1.append(my_dictionary1[i])      
+        
+        list1= sorted(x, reverse = False)
+        list2 = sorted ( x1, reverse = False)
+        plt.clf()
+
+        fig, (ax1, ax2) = plt.subplots(1, 2)
+        
+
+        ax1.bar(list1, y, label='2023 year', color = "black")
+        ax2.bar(list2, y1, label='2022 year', color='red')
+
+        ax2.set_title('2022 year')
+        ax1.set_title('2023 year')
+        plt.savefig('Time.png')
+        
+       
+       
+
+
     '''def malware_families_in_targeted_country():
         ids = spark.sql("select id from pulse").collect()
         dict = {}
@@ -163,8 +224,9 @@ if response.status_code == 200:
         print(dict)
                     
     '''
-   
     display_data_tags()
+   
+    
    
     #TARGETED COUNTRIES
     display_data("targeted_countries")
@@ -177,13 +239,10 @@ if response.status_code == 200:
     
    
     display_data_adversary()
-   
-   
+    
+    threatNumOverTime()
 
    
-    
-    #NUMBER OF MALWARE FAMILIES IN TARGETED COUNTRIES
-    #malware_families_in_targeted_country()
 
 else:
     print("Error:", response.status_code)
