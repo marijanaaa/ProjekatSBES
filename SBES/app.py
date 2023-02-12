@@ -143,7 +143,7 @@ if response.status_code == 200:
                     if '2023' in splitValue:
                        newValue = splitValue.split('2023-')[1] 
                        val1 = newValue.split('01-')[1] 
-                       print(val1)
+                      
                        if val1 <= '20':
                           created.append(newValue)
 
@@ -188,42 +188,58 @@ if response.status_code == 200:
         plt.savefig('Time.png')
         
        
-       
+   
 
+    
 
-    '''def malware_families_in_targeted_country():
+    def malware_families_in_targeted_country():
         ids = spark.sql("select id from pulse").collect()
-        dict = {}
+        countriess = spark.sql("select targeted_countries from pulse").collect()
+
+
+        my_dictionary = dict()
+        countries = []
+
+        for country in countriess:
+                for con in country:
+                    for ctry in con:
+                        countries.append(ctry)
+        my_dictionary = dict.fromkeys(countries, [])                  
+                        
+       
         dict_malwares_frequency = {}
+        myList = []
         for id in ids:
             id_as_dict = id.asDict()
-            #print(id_as_dict)
+           
             value = id_as_dict.get('id')
-            #print(value)
+           
             targeted_countries = spark.sql('select targeted_countries from pulse WHERE id = "'+value+'"').collect()
+            
             malware_families = spark.sql('select malware_families from pulse WHERE id = "'+value+'"').collect()
             for country in targeted_countries:
-                country = country.asDict()
-                if country in dict.keys():
-                    for malware in malware_families:
-                        malware = malware.asDict()
-                        if malware in dict_malwares_frequency.keys():
-                            dict_malwares_frequency[malware] += 1
-                            dict[country] = dict_malwares_frequency
-                        else:
-                            dict_malwares_frequency[malware] = 1
-                            dict[country] = dict_malwares_frequency
-                else:
-                    for malware in malware_families:
-                        if malware in dict_malwares_frequency.keys():
-                            dict_malwares_frequency[malware] += 1
-                            dict[country] = dict_malwares_frequency
-                        else:
-                            dict_malwares_frequency[malware] = 1
-                            dict[country] = dict_malwares_frequency
-        print(dict)
-                    
-    '''
+               
+                for con in country:
+                    for ctry in con:
+                        for malware in malware_families:
+                            for malw in malware:
+                                my_dictionary[ctry] += malw
+                                    
+                                
+                                
+
+                                    
+                                    
+                                
+
+                                
+
+            
+        #print(malwares)         
+        #print(countries)
+          
+        print(my_dictionary)          
+    
     display_data_tags()
    
     
@@ -241,6 +257,7 @@ if response.status_code == 200:
     display_data_adversary()
     
     threatNumOverTime()
+    malware_families_in_targeted_country()
 
    
 
