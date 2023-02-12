@@ -21,7 +21,7 @@ headers = {
 }
 # Set the parameters for the API request
 params = {
-    "limit": 300 # Set the number of pulses to retrieve
+    "limit": 500 # Set the number of pulses to retrieve
 }
 # Send the API request
 response = requests.get(base_url + endpoint, headers=headers, params=params)
@@ -40,10 +40,10 @@ if response.status_code == 200:
 
 
     # Convert the list of pulses to a Spark DataFrame
-    df = spark.read.format("json").option("inferSchema","true") .load("Data.json")
+    df = spark.read.format("json").option("inferSchema","true") .load("Data1.json")
     df.createOrReplaceTempView("pulse")#pravim tabelu koja se zove puls
             
-    def plot(dict, parameter):
+    '''def plot(dict, parameter):
         group_data = list(dict.values())
         group_names = list(dict.keys())
         group_mean = np.mean(group_data) 
@@ -188,58 +188,46 @@ if response.status_code == 200:
         plt.savefig('Time.png')
         
        
-   
+   '''
 
     
 
     def malware_families_in_targeted_country():
         ids = spark.sql("select id from pulse").collect()
-        countriess = spark.sql("select targeted_countries from pulse").collect()
+        country_dict = {}
 
-
-        my_dictionary = dict()
-        countries = []
-
-        for country in countriess:
-                for con in country:
-                    for ctry in con:
-                        countries.append(ctry)
-        my_dictionary = dict.fromkeys(countries, [])                  
-                        
-       
-        dict_malwares_frequency = {}
-        myList = []
         for id in ids:
-            id_as_dict = id.asDict()
-           
-            value = id_as_dict.get('id')
-           
-            targeted_countries = spark.sql('select targeted_countries from pulse WHERE id = "'+value+'"').collect()
-            
-            malware_families = spark.sql('select malware_families from pulse WHERE id = "'+value+'"').collect()
-            for country in targeted_countries:
-               
-                for con in country:
-                    for ctry in con:
-                        for malware in malware_families:
-                            for malw in malware:
-                                my_dictionary[ctry] += malw
-                                    
-                                
-                                
+            id = id.asDict()
+            id_value = id.get('id')
+            targeted_countries = spark.sql('select targeted_countries from pulse WHERE id = "'+id_value+'"').collect() 
+            malware_families = spark.sql('select malware_families from pulse WHERE id = "'+id_value+'"').collect()
+            temp_country_dict = {}
+            temp_malware_dict = {}
 
-                                    
-                                    
-                                
+            for row_list in targeted_countries:
+                for list in row_list:
+                    for country in list:
+                        if country not in country_dict.keys() and country not in temp_country_dict.keys():
+                            country_dict.update({country: {}})
+                        temp_country_dict.update({country: {}})
 
-                                
+            for row_list in malware_families:
+                for list in row_list:
+                    for malware in list:
+                        if malware not in temp_malware_dict.keys():
+                            temp_malware_dict.update({malware:1})
+                        else:
+                            temp_malware_dict[malware] +=1
 
-            
-        #print(malwares)         
-        #print(countries)
-          
-        print(my_dictionary)          
-    
+            for country in temp_country_dict.keys():
+                malware_dict = country_dict.get(country)
+                for malware in malware_dict:
+                    if malware in temp_malware_dict:
+                        temp_malware_dict[malware] += malware_dict[malware]
+                new_dict = dict(malware_dict, **temp_malware_dict)
+                country_dict.update({country:new_dict})
+        print(country_dict)                   
+    '''
     display_data_tags()
    
     
@@ -256,7 +244,7 @@ if response.status_code == 200:
    
     display_data_adversary()
     
-    threatNumOverTime()
+    threatNumOverTime()'''
     malware_families_in_targeted_country()
 
    
