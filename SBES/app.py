@@ -43,7 +43,7 @@ if response.status_code == 200:
     df = spark.read.format("json").option("inferSchema","true") .load("Data1.json")
     df.createOrReplaceTempView("pulse")#pravim tabelu koja se zove puls
             
-    '''def plot(dict, parameter):
+    def plot(dict, parameter):
         group_data = list(dict.values())
         group_names = list(dict.keys())
         group_mean = np.mean(group_data) 
@@ -187,8 +187,7 @@ if response.status_code == 200:
         ax1.set_title('2023 year')
         plt.savefig('Time.png')
         
-       
-   '''
+
 
     
 
@@ -227,11 +226,9 @@ if response.status_code == 200:
                 new_dict = dict(malware_dict, **temp_malware_dict)
                 country_dict.update({country:new_dict})
         print(country_dict)                   
-    '''
-    display_data_tags()
-   
     
-   
+    display_data_tags()
+
     #TARGETED COUNTRIES
     display_data("targeted_countries")
     
@@ -241,10 +238,9 @@ if response.status_code == 200:
     #INDUSTRIES
     display_data("industries")
     
-   
     display_data_adversary()
     
-    threatNumOverTime()'''
+    threatNumOverTime()
     malware_families_in_targeted_country()
 
    
