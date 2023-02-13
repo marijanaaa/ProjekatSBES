@@ -40,7 +40,7 @@ if response.status_code == 200:
 
 
     # Convert the list of pulses to a Spark DataFrame
-    df = spark.read.format("json").option("inferSchema","true") .load("Data1.json")
+    df = spark.read.format("json").option("inferSchema","true") .load("Data.json")
     df.createOrReplaceTempView("pulse")#pravim tabelu koja se zove puls
             
     def plot(dict, parameter):
@@ -89,6 +89,28 @@ if response.status_code == 200:
                     dict[item] = 1
         print(dict)  
         plot(dict, parameter)
+    def display_malware_families():
+        rows = spark.sql('select malware_families from pulse').collect()
+        dict = {}
+        for row in rows:
+            result = row.asDict()
+            array = result['malware_families']
+            for item in array:
+                if item in dict.keys():
+                    dict[item] += 1
+                else:
+                    dict[item] = 1
+        print(dict)
+        sorted_tuple_list = sorted(dict.items(), key=lambda x:x[1], reverse=True)    
+        sorted_tuple_list = sorted_tuple_list[:10]
+        
+        dict1={}
+        for tuple in sorted_tuple_list:
+            dict1[tuple[0]] = tuple[1]
+        
+        plt.clf()
+   
+        plot(dict1, 'malware_families')
 
 
     def display_data_adversary():
@@ -139,11 +161,13 @@ if response.status_code == 200:
         for indicators in indicatorss:
             for indicator in indicators:
                 for ind in indicator:
-                    splitValue = ind[1].split("T")[0]
+                    nind = str(ind[1])
+                    splitValue = nind.split("T")[0]
+
                     if '2023' in splitValue:
                        newValue = splitValue.split('2023-')[1] 
                        val1 = newValue.split('01-')[1] 
-                      
+                       
                        if val1 <= '20':
                           created.append(newValue)
 
@@ -152,6 +176,7 @@ if response.status_code == 200:
                         created1.append(newValue)
 
         my_dictionary = dict.fromkeys(created, 0)
+        my_dictionary1 = dict.fromkeys(created1, 0)
         for i in created:
              if i in my_dictionary.keys():
                 my_dictionary[i] += 1
@@ -162,7 +187,7 @@ if response.status_code == 200:
                 my_dictionary1[i] += 1
              else:
                  my_dictionary1[i] = 0
-        
+
         x = my_dictionary.keys()
         y = []
         for i in x:
@@ -175,6 +200,8 @@ if response.status_code == 200:
         
         list1= sorted(x, reverse = False)
         list2 = sorted ( x1, reverse = False)
+        print(list1)
+        print(list2)
         plt.clf()
 
         fig, (ax1, ax2) = plt.subplots(1, 2)
@@ -182,7 +209,8 @@ if response.status_code == 200:
 
         ax1.bar(list1, y, label='2023 year', color = "black")
         ax2.bar(list2, y1, label='2022 year', color='red')
-
+        ax1.set_ylabel("Indicators")
+        ax2.set_ylabel("Indicators")
         ax2.set_title('2022 year')
         ax1.set_title('2023 year')
         plt.savefig('Time.png')
@@ -217,7 +245,7 @@ if response.status_code == 200:
                             temp_malware_dict.update({malware:1})
                         else:
                             temp_malware_dict[malware] +=1
-
+            malware_dict = {}
             for country in temp_country_dict.keys():
                 malware_dict = country_dict.get(country)
                 for malware in malware_dict:
@@ -225,6 +253,45 @@ if response.status_code == 200:
                         temp_malware_dict[malware] += malware_dict[malware]
                 new_dict = dict(malware_dict, **temp_malware_dict)
                 country_dict.update({country:new_dict})
+
+        x1 = []
+        y1 = []
+        
+        country1 = 'Canada'
+        list_malware1 = country_dict[country1]
+        x1 = list_malware1.keys()
+        for i in x1:
+            y1.append(list_malware1[i])
+        
+        x2 = []
+        y2 = []
+        country2 = 'France'
+        list_malware2 = country_dict[country2]
+        x2 = list_malware2.keys()
+        for i in x2:
+            y2.append(list_malware2[i])
+
+        x3 = []
+        y3 = []
+        country3 = 'Russian Federation'
+        list_malware3 = country_dict[country3]
+        x3 = list_malware3.keys()
+        for i in x3:
+            y3.append(list_malware3[i])
+
+        fig, (ax1, ax2, ax3) = plt.subplots(1, 3)
+        
+
+        ax1.bar(x1, y1, label='Canada', color = "red")
+        ax2.bar(x2, y2, label='France', color='blue')
+        ax3.bar(x3, y3, label='Russian', color='purple')
+        
+        ax1.set_title('Canada')
+        ax2.set_title('France')
+        ax3.set_title('Russian Federation')
+        
+        plt.savefig('malwares_in_country.png')    
+            
         print(country_dict)                   
     
     display_data_tags()
@@ -233,7 +300,7 @@ if response.status_code == 200:
     display_data("targeted_countries")
     
     #MALWARE FAMILIES
-    display_data("malware_families")
+    display_malware_families()
 
     #INDUSTRIES
     display_data("industries")
